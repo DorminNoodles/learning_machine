@@ -6,7 +6,7 @@
 /*   By: lchety <lchety@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/10/12 11:04:58 by lchety            #+#    #+#             */
-/*   Updated: 2017/10/12 15:11:19 by lchety           ###   ########.fr       */
+/*   Updated: 2017/10/12 22:10:02 by lchety           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,22 @@ void	create_player(t_dna *dna)
 
 }
 
+void	physics_player(t_dna *dna)
+{
+	if (dna->player.pos.y + dna->player.velocity.y > GROUND)
+	{
+		dna->player.velocity.y = 0;
+		dna->player.pos.y = GROUND;
+		dna->jump = 0;
+	}
+	else
+	{
+		dna->player.velocity.y += GRAVITY;
+	}
+
+	dna->player.pos.y += dna->player.velocity.y;
+}
+
 void	physics(t_dna *dna)
 {
 	int i;
@@ -63,6 +79,7 @@ void	physics(t_dna *dna)
 		}
 		i++;
 	}
+	physics_player(dna);
 
 }
 
@@ -70,11 +87,25 @@ void	controller(t_dna *dna)
 {
 	int keycode;
 
+	// printw("SPACE");
 	// nocbreak(); //getch() no block
 	keycode = getch();
+
+	if (keycode == ' ' && !dna->jump)
+	{
+		dna->jump = 1;
+		// printw("SPACE");
+		dna->player.velocity.y -= 1.4;
+	}
 	// printw("keycode : %d\n", keycode);
 
 
+}
+
+void	display_player(t_dna *dna)
+{
+	move(dna->player.pos.y, dna->player.pos.x);
+	printw("P");
 }
 
 void	display(t_dna *dna)
@@ -101,6 +132,7 @@ void	display(t_dna *dna)
 		}
 		i++;
 	}
+	display_player(dna);
 
 }
 
@@ -115,12 +147,61 @@ void	init_dna(t_dna *dna)
 		dna->obj[i].id = -1;
 		i++;
 	}
+
+	dna->next_ennemy = dna->frame + ENNEMY_DELAY;
 }
 
+void	init_player(t_dna *dna)
+{
+	dna->player.pos.y = 20;
+	dna->player.pos.x = 25;
+	dna->player.velocity.y = 0.0;
+	dna->player.living = 1;
+}
+
+void	collisions(t_dna *dna)
+{
+	if ((int)dna->player.pos.x == dna->obj[0].x)
+	{
+		if ((int)dna->player.pos.y == dna->obj[0].y)
+		{
+			dna->player.living = 0;
+		}
+	}
+
+}
+
+void	main_game(t_dna *dna)
+{
+	while (dna->player.living)
+	{
+		clear();
+		//------debug
+			// move(0,0);
+			// printw("%d", COLS);
+		//------debug
+		physics(dna);
+		collisions(dna);
+		// printw("Hello World");  // Écrit Hello World à l'endroit où le curseur logique est positionné
+		display(dna);
+		// refresh();              // Rafraîchit la fenêtre courante afin de voir le message apparaître
+		// getch();                // On attend que l'utilisateur appui sur une touche pour quitter
+		move(5,5);
+		printw("->      %f", dna->player.velocity.y);
+
+		// if (dna.jump)
+			// dna.player.velocity.y = dna.player.velocity.y + 800.0;
+			// printw("fuck you");
+		controller(dna);
+	}
+
+}
 
 int main(void)
 {
 	t_dna dna;
+
+	dna.jump = 0;
 
 	WINDOW *w;
 
@@ -131,22 +212,19 @@ int main(void)
 	cbreak(); //getch() no block
 
 
-	create_ennemy(&dna, COLS, 40);
+	// create_ennemy(&dna, COLS - 80, 40);
+	init_player(&dna);
 
 	while (42)
 	{
-		clear();
-		//------debug
-			// move(0,0);
-			// printw("%d", COLS);
-		//------debug
-		physics(&dna);
-    	// printw("Hello World");  // Écrit Hello World à l'endroit où le curseur logique est positionné
-		display(&dna);
-    	refresh();              // Rafraîchit la fenêtre courante afin de voir le message apparaître
-    	// getch();                // On attend que l'utilisateur appui sur une touche pour quitter
-		controller(&dna);
-		// usleep(30000);
+		main_game(&dna);
+		while (42)
+		{
+			clear();
+			move(25, COLS / 2);
+			printw("GAME OVER");
+			refresh();              // Rafraîchit la fenêtre courante afin de voir le message apparaître
+		}
 	}
     endwin();               // Restaure les paramètres par défaut du terminal
 

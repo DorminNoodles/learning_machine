@@ -6,11 +6,14 @@
 /*   By: lchety <lchety@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/10/12 11:16:23 by lchety            #+#    #+#             */
-/*   Updated: 2017/10/12 14:39:23 by lchety           ###   ########.fr       */
+/*   Updated: 2017/10/12 22:09:27 by lchety           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #define NB_OBJ 128
+#define GROUND 40
+#define GRAVITY 0.2
+#define ENNEMY_DELAY 3
 
 typedef struct s_v2d
 {
@@ -26,7 +29,18 @@ typedef struct s_obj
 	t_v2d	velocity;
 }t_obj;
 
+typedef struct s_player
+{
+	int		living;
+	t_v2d	pos;
+	t_v2d	velocity;
+}t_player;
+
 typedef struct s_dna
 {
-	t_obj	obj[NB_OBJ];
+	int			jump;
+	int			next_ennemy;
+	int			frame;
+	t_obj		obj[NB_OBJ];
+	t_player	player;
 }t_dna;
