@@ -6,7 +6,7 @@
 /*   By: lchety <lchety@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/10/12 11:04:58 by lchety            #+#    #+#             */
-/*   Updated: 2017/10/12 22:10:02 by lchety           ###   ########.fr       */
+/*   Updated: 2017/10/13 14:00:23 by lchety           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,18 +161,26 @@ void	init_player(t_dna *dna)
 
 void	collisions(t_dna *dna)
 {
-	if ((int)dna->player.pos.x == dna->obj[0].x)
+	int i;
+
+	i = 0;
+	while (i < NB_OBJ)
 	{
-		if ((int)dna->player.pos.y == dna->obj[0].y)
+		if (dna->obj[i].id != -1 && (int)dna->player.pos.x == dna->obj[i].x)
 		{
-			dna->player.living = 0;
+			if ((int)dna->player.pos.y == dna->obj[i].y)
+			{
+				dna->player.living = 0;
+			}
 		}
+		i++;
 	}
 
 }
 
 void	main_game(t_dna *dna)
 {
+	dna->frame = 0;
 	while (dna->player.living)
 	{
 		clear();
@@ -188,11 +196,24 @@ void	main_game(t_dna *dna)
 		// getch();                // On attend que l'utilisateur appui sur une touche pour quitter
 		move(5,5);
 		printw("->      %f", dna->player.velocity.y);
-
 		// if (dna.jump)
 			// dna.player.velocity.y = dna.player.velocity.y + 800.0;
 			// printw("fuck you");
 		controller(dna);
+		dna->frame++;
+	}
+
+}
+
+void	spawn_ennemy(t_dna *dna)
+{
+	int i;
+
+	i = 0;
+	while (i < 50)
+	{
+		create_ennemy(dna, 50 + (20 * i), 40);
+		i++;
 	}
 
 }
@@ -211,8 +232,8 @@ int main(void)
 	timeout(60);
 	cbreak(); //getch() no block
 
+	spawn_ennemy(&dna);
 
-	// create_ennemy(&dna, COLS - 80, 40);
 	init_player(&dna);
 
 	while (42)
